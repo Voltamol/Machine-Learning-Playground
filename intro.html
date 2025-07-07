@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Machine Learning Playground</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            line-height: 1.6;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        h1 {
+            text-align: center;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .subtitle {
+            text-align: center;
+            font-size: 1.2em;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+        .problem {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            border-left: 5px solid #ff6b6b;
+        }
+        .example-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .example-item {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 2em;
+            transition: transform 0.3s ease;
+        }
+        .example-item:hover {
+            transform: scale(1.05);
+        }
+        .quiz {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            border-left: 5px solid #4ecdc4;
+        }
+        .quiz-question {
+            font-size: 1.1em;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        .quiz-options {
+            display: grid;
+            gap: 10px;
+        }
+        .quiz-option {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        .quiz-option:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateX(5px);
+        }
+        .quiz-option.selected {
+            border-color: #4ecdc4;
+            background: rgba(76, 205, 196, 0.3);
+        }
+        .quiz-option.correct {
+            border-color: #2ecc71;
+            background: rgba(46, 204, 113, 0.3);
+        }
+        .quiz-option.incorrect {
+            border-color: #e74c3c;
+            background: rgba(231, 76, 60, 0.3);
+        }
+        .check-answer {
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            margin-top: 15px;
+            transition: transform 0.3s ease;
+        }
+        .check-answer:hover {
+            transform: scale(1.05);
+        }
+        .check-answer:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .explanation {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            display: none;
+        }
+        .explanation.show {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .emoji {
+            font-size: 1.2em;
+            margin-right: 5px;
+        }
+        .pattern-demo {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            text-align: center;
+        }
+        .pattern-row {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 10px 0;
+            flex-wrap: wrap;
+        }
+        .pattern-item {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 10px;
+            border-radius: 8px;
+            min-width: 50px;
+            text-align: center;
+            font-size: 1.5em;
+        }
+        .prediction-box {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border: 2px dashed rgba(255, 255, 255, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <h1>🤖 Machine Learning Playground</h1>
+    <div class="subtitle">Fun Problems Even 6th Graders Can Master!</div>
+
+    <div class="container">
+        <div class="problem">
+            <h2>🐾 Problem 1: The Pet Predictor</h2>
+            <p>Imagine you're a pet detective! You need to figure out if an animal is a cat or dog just by looking at simple clues.</p>
+            
+            <h3>Training Examples:</h3>
+            <div class="example-grid">
+                <div class="example-item">🐱<br>Small<br>Meows</div>
+                <div class="example-item">🐱<br>Small<br>Purrs</div>
+                <div class="example-item">🐶<br>Large<br>Barks</div>
+                <div class="example-item">🐶<br>Medium<br>Wags tail</div>
+            </div>
+            
+            <p>A machine learning algorithm would study these examples and learn that:</p>
+            <ul>
+                <li>Small animals that make soft sounds → Usually cats</li>
+                <li>Larger animals that bark or wag → Usually dogs</li>
+            </ul>
+        </div>
+
+        <div class="quiz">
+            <div class="quiz-question">
+                <span class="emoji">🤔</span>Quiz Time! Based on the examples above, what would you predict?
+                <br><br>
+                <strong>New animal: Medium size, makes purring sounds</strong>
+            </div>
+            <div class="quiz-options">
+                <div class="quiz-option" data-answer="correct">🐱 Cat</div>
+                <div class="quiz-option" data-answer="incorrect">🐶 Dog</div>
+                <div class="quiz-option" data-answer="incorrect">🐹 Hamster</div>
+            </div>
+            <button class="check-answer" onclick="checkAnswer(this)">Check Answer</button>
+            <div class="explanation">
+                <span class="emoji">🎉</span><strong>Great thinking!</strong> Even though it's medium size (more like a dog), the purring sound is a strong cat indicator. This shows how machine learning weighs different features!
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="problem">
+            <h2>🌤️ Problem 2: Weather Prediction</h2>
+            <p>You're a weather wizard! Can you predict if it will rain by looking at cloud patterns?</p>
+            
+            <div class="pattern-demo">
+                <h3>Training Data:</h3>
+                <div class="pattern-row">
+                    <div class="pattern-item">☁️☁️☁️<br>Dark clouds<br>→ Rain</div>
+                    <div class="pattern-item">🌤️<br>Few clouds<br>→ Sunny</div>
+                    <div class="pattern-item">☁️☁️<br>Gray clouds<br>→ Rain</div>
+                    <div class="pattern-item">☀️<br>Clear sky<br>→ Sunny</div>
+                </div>
+            </div>
+            
+            <div class="prediction-box">
+                <h3>Pattern Discovery:</h3>
+                <p>The algorithm learns: <strong>More dark clouds = Higher chance of rain</strong></p>
+            </div>
+        </div>
+
+        <div class="quiz">
+            <div class="quiz-question">
+                <span class="emoji">🌦️</span>What should the weather predictor say?
+                <br><br>
+                <strong>Today's sky: ☁️☁️☁️☁️ (Very cloudy and dark)</strong>
+            </div>
+            <div class="quiz-options">
+                <div class="quiz-option" data-answer="correct">🌧️ It will probably rain</div>
+                <div class="quiz-option" data-answer="incorrect">☀️ It will be sunny</div>
+                <div class="quiz-option" data-answer="incorrect">🌪️ There will be a tornado</div>
+            </div>
+            <button class="check-answer" onclick="checkAnswer(this)">Check Answer</button>
+            <div class="explanation">
+                <span class="emoji">🌧️</span><strong>Perfect!</strong> The algorithm learned that lots of dark clouds usually mean rain. That's pattern recognition in action!
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="problem">
+            <h2>🎵 Problem 3: Music Mood Detector</h2>
+            <p>You're building a robot DJ! It needs to figure out if a song is happy or sad.</p>
+            
+            <div class="pattern-demo">
+                <h3>Training Examples:</h3>
+                <div class="pattern-row">
+                    <div class="pattern-item">🎵<br>Fast beat<br>Major key<br>→ Happy</div>
+                    <div class="pattern-item">🎶<br>Slow beat<br>Minor key<br>→ Sad</div>
+                    <div class="pattern-item">🎵<br>Medium beat<br>Major key<br>→ Happy</div>
+                    <div class="pattern-item">🎶<br>Very slow<br>Minor key<br>→ Sad</div>
+                </div>
+            </div>
+            
+            <div class="prediction-box">
+                <h3>What the AI learns:</h3>
+                <ul>
+                    <li>Fast beats + Major keys = Happy songs</li>
+                    <li>Slow beats + Minor keys = Sad songs</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="quiz">
+            <div class="quiz-question">
+                <span class="emoji">🎧</span>New song analysis time!
+                <br><br>
+                <strong>Song features: Very fast beat, Major key, Upbeat lyrics</strong>
+            </div>
+            <div class="quiz-options">
+                <div class="quiz-option" data-answer="correct">😊 Happy song</div>
+                <div class="quiz-option" data-answer="incorrect">😢 Sad song</div>
+                <div class="quiz-option" data-answer="incorrect">😴 Boring song</div>
+            </div>
+            <button class="check-answer" onclick="checkAnswer(this)">Check Answer</button>
+            <div class="explanation">
+                <span class="emoji">🎉</span><strong>You're a natural!</strong> Fast beat + Major key + Upbeat lyrics = All signs point to a happy song! The AI combines multiple clues to make smart predictions.
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="problem">
+            <h2>🎯 The Big Picture</h2>
+            <p>Machine Learning is like being a super-smart pattern detective! Here's what we learned:</p>
+            
+            <div class="pattern-demo">
+                <h3>The ML Recipe:</h3>
+                <div style="text-align: left; max-width: 600px; margin: 0 auto;">
+                    <p><strong>1. 📚 Show lots of examples</strong> (Training data)</p>
+                    <p><strong>2. 🔍 Find patterns</strong> (What features matter?)</p>
+                    <p><strong>3. 🎯 Make predictions</strong> (Apply patterns to new data)</p>
+                    <p><strong>4. 📈 Get better over time</strong> (Learn from mistakes)</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="quiz">
+            <div class="quiz-question">
+                <span class="emoji">🏆</span>Final Challenge! Which is the BEST example of machine learning?
+            </div>
+            <div class="quiz-options">
+                <div class="quiz-option" data-answer="incorrect">A calculator adding 2 + 2 = 4</div>
+                <div class="quiz-option" data-answer="correct">Netflix suggesting movies you might like based on what you've watched</div>
+                <div class="quiz-option" data-answer="incorrect">A clock showing the current time</div>
+            </div>
+            <button class="check-answer" onclick="checkAnswer(this)">Check Answer</button>
+            <div class="explanation">
+                <span class="emoji">🌟</span><strong>Excellent!</strong> Netflix learns from your viewing patterns and finds similar movies. That's machine learning! The calculator and clock just follow programmed rules - no learning involved.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function checkAnswer(button) {
+            const quiz = button.closest('.quiz');
+            const options = quiz.querySelectorAll('.quiz-option');
+            const explanation = quiz.querySelector('.explanation');
+            
+            let selectedOption = null;
+            options.forEach(option => {
+                if (option.classList.contains('selected')) {
+                    selectedOption = option;
+                }
+            });
+            
+            if (!selectedOption) {
+                alert('Please select an answer first!');
+                return;
+            }
+            
+            // Show correct/incorrect
+            options.forEach(option => {
+                if (option.dataset.answer === 'correct') {
+                    option.classList.add('correct');
+                } else {
+                    option.classList.add('incorrect');
+                }
+            });
+            
+            // Show explanation
+            explanation.classList.add('show');
+            
+            // Disable button
+            button.disabled = true;
+            button.textContent = 'Answer Checked!';
+        }
+        
+        // Add click handlers for quiz options
+        document.querySelectorAll('.quiz-option').forEach(option => {
+            option.addEventListener('click', function() {
+                // Remove selection from siblings
+                this.parentElement.querySelectorAll('.quiz-option').forEach(opt => {
+                    opt.classList.remove('selected');
+                });
+                // Add selection to clicked option
+                this.classList.add('selected');
+            });
+        });
+    </script>
+</body>
+</html>
