@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Linear Regression Interactive Demo</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 2.2em;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #7f8c8d;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        
+        .plot-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+        
+        #plot {
+            border: 2px solid #34495e;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            background: #f8f9fa;
+        }
+        
+        .controls {
+            background: #ecf0f1;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .slider-container {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        input[type="range"] {
+            width: 100%;
+            height: 8px;
+            border-radius: 5px;
+            background: #bdc3c7;
+            outline: none;
+            -webkit-appearance: none;
+            margin-bottom: 10px;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #3498db;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
+        
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #3498db;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
+        
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .metric-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            border-left: 4px solid #3498db;
+        }
+        
+        .metric-title {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 8px;
+            font-size: 1.1em;
+        }
+        
+        .metric-value {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #e74c3c;
+        }
+        
+        .equation {
+            color: #8e44ad;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .mse-explanation {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+            color: #856404;
+        }
+        
+        .mse-explanation strong {
+            color: #6c5ce7;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            
+            #plot {
+                max-width: 100%;
+                height: auto;
+            }
+            
+            .metrics {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔬 Linear Regression Explorer</h1>
+        <p class="subtitle">Adjust the slope and watch how it affects the fit!</p>
+        
+        <div class="plot-container">
+            <canvas id="plot" width="600" height="400"></canvas>
+        </div>
+        
+        <div class="controls">
+            <div class="slider-container">
+                <label for="slopeSlider">Slope (m): <span id="slopeValue">1.0</span></label>
+                <input type="range" id="slopeSlider" min="-3" max="3" step="0.1" value="1.0">
+            </div>
+        </div>
+        
+        <div class="metrics">
+            <div class="metric-card">
+                <div class="metric-title">Current Equation</div>
+                <div class="metric-value equation" id="equation">y = 1.0x</div>
+            </div>
+            
+            <div class="metric-card">
+                <div class="metric-title">Mean Squared Error</div>
+                <div class="metric-value" id="mse">0.00</div>
+            </div>
+            
+            <div class="metric-card">
+                <div class="metric-title">Slope Value</div>
+                <div class="metric-value" id="slopeDisplay">1.0</div>
+            </div>
+        </div>
+        
+        <div class="mse-explanation">
+            <strong>💡 Understanding MSE:</strong> The Mean Squared Error measures how far the line is from the data points. 
+            Lower MSE = better fit! Try different slopes to find the one that minimizes the error.
+        </div>
+    </div>
+
+    <script>
+        // Static data points (hardcoded for consistent demonstration)
+        const dataPoints = [
+            {x: 1, y: 2.1},
+            {x: 2, y: 3.9},
+            {x: 3, y: 6.2},
+            {x: 4, y: 7.8},
+            {x: 5, y: 9.7},
+            {x: 6, y: 12.1},
+            {x: 7, y: 14.2},
+            {x: 8, y: 15.8},
+            {x: 9, y: 18.1},
+            {x: 10, y: 19.9}
+        ];
+        
+        const canvas = document.getElementById('plot');
+        const ctx = canvas.getContext('2d');
+        const slopeSlider = document.getElementById('slopeSlider');
+        const slopeValue = document.getElementById('slopeValue');
+        const equation = document.getElementById('equation');
+        const mseDisplay = document.getElementById('mse');
+        const slopeDisplay = document.getElementById('slopeDisplay');
+        
+        // Plot dimensions and scaling
+        const plotMargin = 50;
+        const plotWidth = canvas.width - 2 * plotMargin;
+        const plotHeight = canvas.height - 2 * plotMargin;
+        const maxX = 11;
+        const maxY = 25;
+        
+        function scaleX(x) {
+            return plotMargin + (x / maxX) * plotWidth;
+        }
+        
+        function scaleY(y) {
+            return canvas.height - plotMargin - (y / maxY) * plotHeight;
+        }
+        
+        function calculateMSE(slope) {
+            let sumSquaredError = 0;
+            for (let point of dataPoints) {
+                const predicted = slope * point.x;
+                const error = point.y - predicted;
+                sumSquaredError += error * error;
+            }
+            return sumSquaredError / dataPoints.length;
+        }
+        
+        function drawPlot() {
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw background
+            ctx.fillStyle = '#f8f9fa';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw grid
+            ctx.strokeStyle = '#e9ecef';
+            ctx.lineWidth = 1;
+            
+            // Vertical grid lines
+            for (let x = 0; x <= maxX; x += 2) {
+                ctx.beginPath();
+                ctx.moveTo(scaleX(x), plotMargin);
+                ctx.lineTo(scaleX(x), canvas.height - plotMargin);
+                ctx.stroke();
+            }
+            
+            // Horizontal grid lines
+            for (let y = 0; y <= maxY; y += 5) {
+                ctx.beginPath();
+                ctx.moveTo(plotMargin, scaleY(y));
+                ctx.lineTo(canvas.width - plotMargin, scaleY(y));
+                ctx.stroke();
+            }
+            
+            // Draw axes
+            ctx.strokeStyle = '#2c3e50';
+            ctx.lineWidth = 2;
+            
+            // X-axis
+            ctx.beginPath();
+            ctx.moveTo(plotMargin, canvas.height - plotMargin);
+            ctx.lineTo(canvas.width - plotMargin, canvas.height - plotMargin);
+            ctx.stroke();
+            
+            // Y-axis
+            ctx.beginPath();
+            ctx.moveTo(plotMargin, plotMargin);
+            ctx.lineTo(plotMargin, canvas.height - plotMargin);
+            ctx.stroke();
+            
+            // Draw axis labels
+            ctx.fillStyle = '#2c3e50';
+            ctx.font = '14px Arial';
+            ctx.textAlign = 'center';
+            
+            // X-axis labels
+            for (let x = 0; x <= maxX; x += 2) {
+                ctx.fillText(x.toString(), scaleX(x), canvas.height - plotMargin + 20);
+            }
+            
+            // Y-axis labels
+            ctx.textAlign = 'right';
+            for (let y = 0; y <= maxY; y += 5) {
+                ctx.fillText(y.toString(), plotMargin - 10, scaleY(y) + 5);
+            }
+            
+            // Draw axis titles
+            ctx.fillStyle = '#34495e';
+            ctx.font = 'bold 16px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('X', canvas.width / 2, canvas.height - 10);
+            
+            ctx.save();
+            ctx.translate(15, canvas.height / 2);
+            ctx.rotate(-Math.PI / 2);
+            ctx.fillText('Y', 0, 0);
+            ctx.restore();
+            
+            // Draw regression line
+            const slope = parseFloat(slopeSlider.value);
+            ctx.strokeStyle = '#e74c3c';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(scaleX(0), scaleY(0));
+            ctx.lineTo(scaleX(maxX), scaleY(slope * maxX));
+            ctx.stroke();
+            
+            // Draw data points
+            ctx.fillStyle = '#3498db';
+            ctx.strokeStyle = '#2980b9';
+            ctx.lineWidth = 2;
+            
+            for (let point of dataPoints) {
+                ctx.beginPath();
+                ctx.arc(scaleX(point.x), scaleY(point.y), 6, 0, 2 * Math.PI);
+                ctx.fill();
+                ctx.stroke();
+            }
+            
+            // Draw residual lines (error visualization)
+            ctx.strokeStyle = '#95a5a6';
+            ctx.lineWidth = 1;
+            ctx.setLineDash([5, 5]);
+            
+            for (let point of dataPoints) {
+                const predicted = slope * point.x;
+                ctx.beginPath();
+                ctx.moveTo(scaleX(point.x), scaleY(point.y));
+                ctx.lineTo(scaleX(point.x), scaleY(predicted));
+                ctx.stroke();
+            }
+            
+            ctx.setLineDash([]);
+        }
+        
+        function updateMetrics() {
+            const slope = parseFloat(slopeSlider.value);
+            const mse = calculateMSE(slope);
+            
+            slopeValue.textContent = slope.toFixed(1);
+            slopeDisplay.textContent = slope.toFixed(1);
+            equation.textContent = `y = ${slope.toFixed(1)}x`;
+            mseDisplay.textContent = mse.toFixed(2);
+            
+            // Color code MSE (green = good, red = bad)
+            const hue = Math.max(0, 120 - (mse * 10));
+            mseDisplay.style.color = `hsl(${hue}, 70%, 50%)`;
+        }
+        
+        function update() {
+            drawPlot();
+            updateMetrics();
+        }
+        
+        // Event listeners
+        slopeSlider.addEventListener('input', update);
+        
+        // Initial draw
+        update();
+        
+        // Add smooth animation on load
+        canvas.style.opacity = '0';
+        setTimeout(() => {
+            canvas.style.transition = 'opacity 0.5s ease-in-out';
+            canvas.style.opacity = '1';
+        }, 100);
+    </script>
+</body>
+</html>
